@@ -52,6 +52,7 @@ export function parse(file) {
         })
         .join("\n");
       fs.writeFileSync(`${dir}/${filename}`, content);
+      console.log(`File ${filename} created`);
     });
   });
 }
