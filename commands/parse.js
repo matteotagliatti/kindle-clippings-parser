@@ -1,4 +1,6 @@
 import fs from "fs";
+import os from "os";
+const homedir = os.homedir();
 
 export function parse(file) {
   fs.readFile(file, "utf8", (err, data) => {
@@ -37,6 +39,11 @@ export function parse(file) {
     const groupByTitles = groupBy("title");
     const grouped = groupByTitles(parsed);
 
+    const dir = `${homedir}/clippings-parsed`;
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir);
+    }
+
     Object.keys(grouped).forEach((key) => {
       const filename = key.replace(/[^a-z0-9]/gi, "_").toLowerCase() + ".md";
       const content = grouped[key]
@@ -44,7 +51,7 @@ export function parse(file) {
           return `${note.text}\n`;
         })
         .join("\n");
-      fs.writeFileSync(`output/${filename}`, content);
+      fs.writeFileSync(`${dir}/${filename}`, content);
     });
   });
 }
