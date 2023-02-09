@@ -1,7 +1,6 @@
 import fs from "fs";
 
 export function parse(file) {
-  // read the file
   fs.readFile(file, "utf8", (err, data) => {
     if (err) {
       console.error(err);
@@ -34,6 +33,25 @@ export function parse(file) {
         return { title: title, text: text, timestamp: timestamp };
       })
       .filter((value) => value);
-    console.log(parsed);
+
+    const groupByTitles = groupBy("title");
+    const grouped = groupByTitles(parsed);
+
+    Object.keys(grouped).forEach((key) => {
+      const filename = key.replace(/[^a-z0-9]/gi, "_").toLowerCase() + ".md";
+      const content = grouped[key]
+        .map((note) => {
+          return `${note.text}\n`;
+        })
+        .join("\n");
+      fs.writeFileSync(`output/${filename}`, content);
+    });
   });
 }
+
+const groupBy = (key) => (array) =>
+  array.reduce((objectsByKeyValue, obj) => {
+    const value = obj[key];
+    objectsByKeyValue[value] = (objectsByKeyValue[value] || []).concat(obj);
+    return objectsByKeyValue;
+  }, {});
