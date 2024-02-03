@@ -1,6 +1,4 @@
 import fs from "fs";
-import os from "os";
-const homedir = os.homedir();
 
 export function parse(file) {
   fs.readFile(file, "utf8", (err, data) => {
@@ -10,14 +8,14 @@ export function parse(file) {
     }
 
     const separator = "==========";
-    const timestampRegex = /Aggiunto in|Added in\:*/;
+    const timestampRegex = /Aggiunto in|Added in:*/;
     const notes = data.split(separator);
 
     const parsed = notes
       .map((note) => {
         const attributes = note.split("\n");
         const cleanedUpAttributes = attributes.filter(
-          (attr) => attr !== "\r" && attr !== ""
+          (attr) => attr !== "\r" && attr !== "",
         );
 
         if (cleanedUpAttributes.length < 3) return null;
@@ -39,11 +37,6 @@ export function parse(file) {
     const groupByTitles = groupBy("title");
     const grouped = groupByTitles(parsed);
 
-    const dir = `${homedir}/clippings-parsed`;
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir);
-    }
-
     Object.keys(grouped).forEach((key) => {
       const filename = key.replace(/[^a-z0-9]/gi, "_").toLowerCase() + ".md";
       const content = grouped[key]
@@ -51,7 +44,7 @@ export function parse(file) {
           return `${note.text}\n`;
         })
         .join("\n");
-      fs.writeFileSync(`${dir}/${filename}`, content);
+      fs.writeFileSync(`${filename}`, content);
       console.log(`File ${filename} created`);
     });
   });
